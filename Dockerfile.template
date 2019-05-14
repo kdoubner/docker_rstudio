@@ -28,9 +28,11 @@ RUN cat /tmp/Install_versions.R /tmp/Packages_*.R > /tmp/install.R && \
     sed 's/install.versions(/testpackageExit(df, /g' | R
 
 # Install Python libraries
+COPY *.py* /tmp/
 RUN apt update && \
-    ls /tmp/Packages_*.py2 && apt install -y python-pip && \
-    ls /tmp/Packages_*.py2 | xargs -l pip install -r && \
-    ls /tmp/Packages_*.py3 && apt install -y python3-pip && \
-    ls /tmp/Packages_*.py3 | xargs -l pip3 install -r && \
+    ls -l /tmp && \
+    [ -s /tmp/Packages_*.py2 ] && (apt install -y python-pip && \
+    ls /tmp/Packages_*.py2 | xargs -l pip install -r) || /bin/true && \
+    [ -s /tmp/Packages_*.py3 ] && (apt install -y python3-pip; \
+    ls /tmp/Packages_*.py3 | xargs -l pip3 install -r) || /bin/true && \
     rm -rf /var/lib/apt/lists/*
