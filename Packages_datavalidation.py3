@@ -24,3 +24,4 @@ six==1.12.0
 soupsieve==1.9.5
 urllib3==1.25.6
 xlrd==1.2.0
+anosql==1.0.1
