@@ -3,6 +3,7 @@ configparser
 dateutils==0.6.6
 et-xmlfile==1.0.1
 jdcal==1.4
+junit_xml==1.8
 numpy==1.16.0
 openpyxl==2.5.14
 psycopg2==2.7.7

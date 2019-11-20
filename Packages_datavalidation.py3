@@ -25,3 +25,5 @@ soupsieve==1.9.5
 urllib3==1.25.6
 xlrd==1.2.0
 anosql==1.0.1
+junit_xml==1.8
+matplotlib==3.1.1
