@@ -9,6 +9,7 @@ dateutils==0.6.6
 docutils==0.15.2
 et-xmlfile==1.0.1
 idna==2.8
+influxdb==5.2.3
 jdcal==1.4
 jmespath==0.9.4
 numpy==1.16.0
