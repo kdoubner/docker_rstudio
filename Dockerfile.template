@@ -34,3 +34,7 @@ RUN apt update && \
     ls /tmp/Packages_*.py2 && (apt install -y python-pip && ls /tmp/Packages_*.py2 | xargs -l pip install -r) || /bin/true && \
     ls /tmp/Packages_*.py3 && (apt install -y python3-pip && ls /tmp/Packages_*.py3 | xargs -l pip3 install -r) || /bin/true && \
     rm -rf /var/lib/apt/lists/*
+
+# Final conveniences
+RUN mkdir /home/ta_analytics \
+    && chown 10000:10000 /home/ta_analytics
