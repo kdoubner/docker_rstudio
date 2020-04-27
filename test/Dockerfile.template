@@ -5,4 +5,5 @@ MAINTAINER "Milos Kozak" mkozak@finmason.com
 RUN apt-get update && apt-get install -y \
         default-jdk \
         maven \
+        git \
     && rm -rf /var/lib/apt/lists/*
