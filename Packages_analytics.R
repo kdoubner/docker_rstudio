@@ -38,3 +38,4 @@ install.versions('covr', '3.2.1')
 install.versions('bizdays', '1.0.6')
 install.versions('aws.s3', '0.3.21')
 install.versions('png', '0.1.7')
+
