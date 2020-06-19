@@ -7,7 +7,7 @@ def makeDockerImageVersion(){
 
 pipeline{
   agent {
-    label "engineering"
+    label "analytics"
   }
 
   options {

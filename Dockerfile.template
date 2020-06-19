@@ -2,24 +2,27 @@ FROM rocker/%%CONTAINER_TYPE%%:3.6.2
 MAINTAINER "Milos Kozak" mkozak@finmason.com
 
 # Install software allowing integration with base OS
-RUN apt-get update && apt-get install -y \
+RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev" && \
+apt-get update && apt-get install -y \
         libnss-sss \
         libpam-sss \
-        libpq-dev \
         openssh-client \
         sssd \
         libxml2-dev \
         libcurl4-openssl-dev \
         python-dev \
-        libssl-dev \
         awscli \
         postgresql-client \
+        openjdk-11-jdk \
+        wget \
+        ${BUILDDEPS} \
     && rm -rf /var/lib/apt/lists/*
 COPY sss_client.pam /etc/pam.d/sss_client
 
 # Install R libraries
 COPY *.R /tmp/
-RUN cat /tmp/Install_versions.R /tmp/Packages_*.R > /tmp/install.R && \
+RUN R CMD javareconf \
+    && cat /tmp/Install_versions.R /tmp/Packages_*.R > /tmp/install.R && \
     Rscript /tmp/install.R && \
     # Test all packages are installed \
     cat /tmp/Test_packages.R /tmp/Packages_*.R | \
