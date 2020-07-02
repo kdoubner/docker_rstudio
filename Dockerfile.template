@@ -7,8 +7,8 @@ COPY Packages_*.py* /tmp/
 COPY sss_client.pam /etc/pam.d/sss_client
 
 # Install software allowing integration with base OS
-RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev" \
-    && apt-get update && apt-get install -y \
+RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
+    && apt-get update && apt-get install -y --no-install-recommends \
         libnss-sss \
         libpam-sss \
         openssh-client \
@@ -17,26 +17,24 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
         postgresql-client \
         openjdk-11-jdk \
         wget \
+        libcurl4-openssl-dev \
         ${BUILDDEPS} \
     # Install R packages
     && R CMD javareconf \
     && cat /tmp/Install_versions.R /tmp/Packages_*.R > /tmp/install.R && \
-    Rscript /tmp/install.R && \
-    # Test all packages are installed \
-    cat /tmp/Test_packages.R /tmp/Packages_*.R | \
-    sed 's/install.versions(/testpackage(df, /g' | R && \
-    # Test and exit if any package is missing \
-    cat /tmp/Test_packages.R /tmp/Packages_*.R | \
-    sed 's/install.versions(/testpackageExit(df, /g' | R \
+    Rscript /tmp/install.R \
     # Install python deps
-    && ls /tmp/Packages_*.py2 && (apt-get install -y python-pip && ls /tmp/Packages_*.py2 | xargs -l pip install -r) || /bin/true \
-    && ls /tmp/Packages_*.py3 && (apt install -y python3-pip && ls /tmp/Packages_*.py3 | xargs -l pip3 install -r) || /bin/true \
+    && ls /tmp/Packages_*.py2 && (apt-get install --no-install-recommends  -y python-pip && ls /tmp/Packages_*.py2 | xargs -l pip install -r) || /bin/true \
+    && ls /tmp/Packages_*.py3 && (apt install --no-install-recommends  -y python3-pip && ls /tmp/Packages_*.py3 | xargs -l pip3 install -r) || /bin/true \
     # Final permissions and folders
     && mkdir -p /home/ta_analytics \
     && chown 10000:10000 /home/ta_analytics \
     # Clean caches
     && apt-get purge -y $BUILDDEPS \
-    && apt-get install -y libpq5 \
+    && apt-get install -y libpq5 libxml2\
     && apt-get autoremove -y \
     && apt-get autoclean -y \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # Test all R packages are installed \
+    && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackage(df, /g' | R \
+    && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackageExit(df, /g' | R 
