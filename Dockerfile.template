@@ -1,27 +1,25 @@
 FROM rocker/%%CONTAINER_TYPE%%:3.6.2
 MAINTAINER "Milos Kozak" mkozak@finmason.com
 
+# Place static files
+COPY *.R /tmp/
+COPY Packages_*.py* /tmp/
+COPY sss_client.pam /etc/pam.d/sss_client
+
 # Install software allowing integration with base OS
-RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev" && \
-apt-get update && apt-get install -y \
+RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev" \
+    && apt-get update && apt-get install -y \
         libnss-sss \
         libpam-sss \
         openssh-client \
         sssd \
-        libxml2-dev \
-        libcurl4-openssl-dev \
-        python-dev \
         awscli \
         postgresql-client \
         openjdk-11-jdk \
         wget \
         ${BUILDDEPS} \
-    && rm -rf /var/lib/apt/lists/*
-COPY sss_client.pam /etc/pam.d/sss_client
-
-# Install R libraries
-COPY *.R /tmp/
-RUN R CMD javareconf \
+    # Install R packages
+    && R CMD javareconf \
     && cat /tmp/Install_versions.R /tmp/Packages_*.R > /tmp/install.R && \
     Rscript /tmp/install.R && \
     # Test all packages are installed \
@@ -29,15 +27,16 @@ RUN R CMD javareconf \
     sed 's/install.versions(/testpackage(df, /g' | R && \
     # Test and exit if any package is missing \
     cat /tmp/Test_packages.R /tmp/Packages_*.R | \
-    sed 's/install.versions(/testpackageExit(df, /g' | R
-
-# Install Python libraries
-COPY Packages_*.py* /tmp/
-RUN apt update && \
-    ls /tmp/Packages_*.py2 && (apt install -y python-pip && ls /tmp/Packages_*.py2 | xargs -l pip install -r) || /bin/true && \
-    ls /tmp/Packages_*.py3 && (apt install -y python3-pip && ls /tmp/Packages_*.py3 | xargs -l pip3 install -r) || /bin/true && \
-    rm -rf /var/lib/apt/lists/*
-
-# Final conveniences
-RUN mkdir /home/ta_analytics \
-    && chown 10000:10000 /home/ta_analytics
+    sed 's/install.versions(/testpackageExit(df, /g' | R \
+    # Install python deps
+    && ls /tmp/Packages_*.py2 && (apt-get install -y python-pip && ls /tmp/Packages_*.py2 | xargs -l pip install -r) || /bin/true \
+    && ls /tmp/Packages_*.py3 && (apt install -y python3-pip && ls /tmp/Packages_*.py3 | xargs -l pip3 install -r) || /bin/true \
+    # Final permissions and folders
+    && mkdir -p /home/ta_analytics \
+    && chown 10000:10000 /home/ta_analytics \
+    # Clean caches
+    && apt-get purge -y $BUILDDEPS \
+    && apt-get install -y libpq5 \
+    && apt-get autoremove -y \
+    && apt-get autoclean -y \
+    && rm -rf /var/lib/apt/lists/*
