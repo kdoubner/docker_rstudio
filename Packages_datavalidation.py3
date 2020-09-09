@@ -28,3 +28,4 @@ xlrd==1.2.0
 anosql==1.0.1
 junit_xml==1.8
 matplotlib==3.0.3
+xlsxwriter==1.3.3
