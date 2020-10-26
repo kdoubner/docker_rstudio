@@ -25,15 +25,8 @@ docker_run_r /full/path/to/hello.r
 ```
 
 ## Updating
-You can update this yourself!  Here's the steps:
-
-* Modify the dockerfile or the Rscript as needed.
-* Test it locally: `docker build .` from the top level directory.
-* Push the dockerfile to github
-* Let docker hub build.  You can see this here: https://hub.docker.com/r/finmason/docker_rstudio/builds/
-* When it finishes building, login to analytics, and run: `service rstudio-server stop && docker rm rstudio-server && docker pull finmason/docker_rstudio && service rstudio-server start`
-* Boom.  You're running with your new stuff.
-* Note that this will not effect your host level python.
+You can update this yourself!  Documentation how to is in Confluence: https://finmason.atlassian.net/wiki/spaces/ID/pages/716242961/RStudio+and+base+R+containers
+ 
 
 ## Python
 There are pre-prepared Packages_*.py2/3 files for handling python2/3 installation. Please bear in mind that at least one .py2 or .py3 file needs to be in place for Packages_xxx. 
