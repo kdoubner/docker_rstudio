@@ -41,5 +41,5 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackage(df, /g' | R \
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackageExit(df, /g' | R 
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 CMD = ["/bin/bash"]
