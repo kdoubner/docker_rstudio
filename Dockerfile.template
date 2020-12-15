@@ -5,6 +5,7 @@ MAINTAINER "Milos Kozak" mkozak@finmason.com
 COPY *.R /tmp/
 COPY Packages_*.py* /tmp/
 COPY sss_client.pam /etc/pam.d/sss_client
+COPY entrypoint.sh /entrypoint.sh
 
 # Install software allowing integration with base OS
 RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
@@ -18,6 +19,7 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
         openjdk-11-jdk \
         wget \
         libcurl4-openssl-dev \
+        netcat \
         ${BUILDDEPS} \
     # Install R packages
     && R CMD javareconf \
@@ -38,3 +40,6 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
     # Test all R packages are installed \
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackage(df, /g' | R \
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackageExit(df, /g' | R 
+
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+CMD = ["/bin/bash"]
