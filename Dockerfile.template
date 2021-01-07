@@ -20,6 +20,7 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
         wget \
         libcurl4-openssl-dev \
         netcat \
+        xsltproc \
         ${BUILDDEPS} \
     # Install R packages
     && R CMD javareconf \
