@@ -15,8 +15,8 @@ pipeline{
   }
 
   environment {
-    registry = "finmason/docker_rstudio"
-    registryCredential = 'hub.docker.com'
+    registry = "657399224926.dkr.ecr.us-east-1.amazonaws.com/rstudio"
+    registryCredential = 'ecr:us-east-1:ta_jenkins'
   }
 
   stages{
@@ -88,14 +88,14 @@ pipeline{
     }
 
 
-    stage("Publish to hub.docker.com"){
+    stage("Publish to ECR"){
       // Skip docker image publish when pull request
       when{
         not { branch 'PR-*' }
       }
       steps{
         script{
-          docker.withRegistry( '', registryCredential ) {
+          docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
             dvImage.push()
             rstudioImage.push()
             rbaseImage.push()
