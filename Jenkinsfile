@@ -15,8 +15,8 @@ pipeline{
   }
 
   environment {
-    registry = "finmason/docker_rstudio"
-    registryCredential = 'hub.docker.com'
+    registry = "657399224926.dkr.ecr.us-east-1.amazonaws.com/rstudio"
+    registryCredential = 'ecr:us-east-1:ta_jenkins'
   }
 
   stages{
@@ -95,7 +95,7 @@ pipeline{
       }
       steps{
         script{
-          docker.withRegistry( '', registryCredential ) {
+          docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
             dvImage.push()
             rstudioImage.push()
             rbaseImage.push()
