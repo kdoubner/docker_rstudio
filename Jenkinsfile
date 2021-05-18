@@ -43,15 +43,15 @@ pipeline{
     }
     stage("Build base images"){
       parallel{
-        stage("Datavalidation image"){
-          steps{
-            script{
-              ansiColor('xterm') {
-                dvImage = docker.build("${registry}:dv-${makeDockerImageVersion()}", "./dv")
-              }
-            }
-          }
-        }
+        // stage("Datavalidation image"){
+        //   steps{
+        //     script{
+        //       ansiColor('xterm') {
+        //         dvImage = docker.build("${registry}:dv-${makeDockerImageVersion()}", "./dv")
+        //       }
+        //     }
+        //   }
+        // }
 
         stage("RStudio"){
           steps{
@@ -96,7 +96,7 @@ pipeline{
       steps{
         script{
           docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
-            dvImage.push()
+            // dvImage.push()
             rstudioImage.push()
             rbaseImage.push()
             testImage.push()

@@ -1,4 +1,4 @@
-FROM finmason/docker_rstudio:rbase-%%CONTAINER_VERSION%%
+FROM 657399224926.dkr.ecr.us-east-1.amazonaws.com/rstudio:rbase-%%CONTAINER_VERSION%%
 MAINTAINER "Milos Kozak" mkozak@finmason.com
 
 # Install software allowing integration with base OS
