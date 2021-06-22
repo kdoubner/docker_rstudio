@@ -17,7 +17,7 @@ pipeline{
   environment {
     registry = "657399224926.dkr.ecr.us-east-1.amazonaws.com/rstudio"
     registryCredential = 'ecr:us-east-1:ta_jenkins'
-    GIT_CREDS = credentials('finmasonbot_jenkins_user')
+    GIT_CREDS = credentials('ddd652c3-3358-4ca5-8183-8bdd9024bdc0')
   }
 
   stages{
@@ -58,7 +58,7 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                  rstudioImage = docker.build("${registry}:${makeDockerImageVersion()}", "--build-arg git_creds=$GIT_CREDS ./rstudio")
+                rstudioImage = docker.build("${registry}:${makeDockerImageVersion()}", "--build-arg git_creds=$GIT_CREDS ./rstudio")
               }
             }
           }
@@ -68,11 +68,10 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                  rbaseImage = docker.build("${registry}:rbase-${makeDockerImageVersion()}", "--build-arg git_creds=$GIT_CREDS ./rbase")
+                rbaseImage = docker.build("${registry}:rbase-${makeDockerImageVersion()}", "--build-arg git_creds=$GIT_CREDS ./rbase")
               }
             }
           }
-        }
         }
       }
     }
@@ -105,7 +104,7 @@ pipeline{
 //         }
 //       }
 //     }
-
+  }
 //   post{
 //     always{
 //       script{
