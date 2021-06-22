@@ -19,6 +19,11 @@ pipeline{
     registryCredential = 'ecr:us-east-1:ta_jenkins'
   }
 
+  withCredentials([usernamePassword(
+    credentialsId: 'finmasonbot_jenkins_user',
+    usernameVariable: 'GIT_USERNAME',
+    passwordVariable: 'GIT_PASSWORD'
+  )]) {
   stages{
     stage("Prepare building environment"){
       steps{
@@ -57,7 +62,7 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                rstudioImage = docker.build("${registry}:${makeDockerImageVersion()}", "./rstudio")
+                  rstudioImage = docker.build("${registry}:${makeDockerImageVersion()}", "--build-arg git_username=$GIT_USERNAME --build-arg git_password=$GIT_PASSWORD ./rstudio")
               }
             }
           }
@@ -67,12 +72,12 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                rbaseImage = docker.build("${registry}:rbase-${makeDockerImageVersion()}", "./rbase")
+                  rbaseImage = docker.build("${registry}:rbase-${makeDockerImageVersion()}", "--build-arg git_username=$GIT_USERNAME --build-arg git_password=$GIT_PASSWORD ./rbase")
               }
             }
           }
         }
-
+        }
       }
     }
 
@@ -81,49 +86,49 @@ pipeline{
         script{
           ansiColor('xterm') {
             sh "sed -r 's!%%CONTAINER_VERSION%%!${makeDockerImageVersion()}!g;' test/Dockerfile.template > test/Dockerfile"
-            testImage = docker.build("${registry}:test-${makeDockerImageVersion()}", "./test")
+            testImage = docker.build("${registry}:test-${makeDockerImageVersion()}", "--build-arg git_username=$GIT_USERNAME --build-arg git_password=$GIT_PASSWORD ./test")
           }
         }
       }
     }
 
 
-    stage("Publish to ECR"){
-      // Skip docker image publish when pull request
-      when{
-        not { branch 'PR-*' }
-      }
-      steps{
-        script{
-          docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
-            // dvImage.push()
-            rstudioImage.push()
-            rbaseImage.push()
-            testImage.push()
-          }
-        }
-      }
-    }
+//     stage("Publish to ECR"){
+//       // Skip docker image publish when pull request
+//       when{
+//         not { branch 'PR-*' }
+//       }
+//       steps{
+//         script{
+//           docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
+//             // dvImage.push()
+//             rstudioImage.push()
+//             rbaseImage.push()
+//             testImage.push()
+//           }
+//         }
+//       }
+//     }
   }
 
-  post{
-    always{
-      script{
-        deleteDir()
-      }
-    }
-    failure{
-      script {
-        emailext subject: "Build# ${env.BUILD_NUMBER} Docker image ${registry} failed",
-                   body: '${SCRIPT, template="groovy-html.template"}',
-                   mimeType: 'text/html',
-                   from: "jenkins@finmason.com",
-                   replyTo: "ops@finmason.com",
-                   recipientProviders: [
-                            [$class: 'CulpritsRecipientProvider'],
-                            [$class: 'DevelopersRecipientProvider'],
-                            [$class: 'RequesterRecipientProvider']]
-      }
-    }
-  }
+//   post{
+//     always{
+//       script{
+//         deleteDir()
+//       }
+//     }
+//     failure{
+//       script {
+//         emailext subject: "Build# ${env.BUILD_NUMBER} Docker image ${registry} failed",
+//                    body: '${SCRIPT, template="groovy-html.template"}',
+//                    mimeType: 'text/html',
+//                    from: "jenkins@finmason.com",
+//                    replyTo: "ops@finmason.com",
+//                    recipientProviders: [
+//                             [$class: 'CulpritsRecipientProvider'],
+//                             [$class: 'DevelopersRecipientProvider'],
+//                             [$class: 'RequesterRecipientProvider']]
+//       }
+//     }
+//   }
 }
