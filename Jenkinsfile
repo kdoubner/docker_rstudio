@@ -17,13 +17,9 @@ pipeline{
   environment {
     registry = "657399224926.dkr.ecr.us-east-1.amazonaws.com/rstudio"
     registryCredential = 'ecr:us-east-1:ta_jenkins'
+    GIT_CREDS = credentials('finmasonbot_jenkins_user')
   }
 
-  withCredentials([usernamePassword(
-    credentialsId: 'finmasonbot_jenkins_user',
-    usernameVariable: 'GIT_USERNAME',
-    passwordVariable: 'GIT_PASSWORD'
-  )]) {
   stages{
     stage("Prepare building environment"){
       steps{
@@ -62,7 +58,7 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                  rstudioImage = docker.build("${registry}:${makeDockerImageVersion()}", "--build-arg git_username=$GIT_USERNAME --build-arg git_password=$GIT_PASSWORD ./rstudio")
+                  rstudioImage = docker.build("${registry}:${makeDockerImageVersion()}", "--build-arg git_creds=$GIT_CREDS ./rstudio")
               }
             }
           }
@@ -72,7 +68,7 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                  rbaseImage = docker.build("${registry}:rbase-${makeDockerImageVersion()}", "--build-arg git_username=$GIT_USERNAME --build-arg git_password=$GIT_PASSWORD ./rbase")
+                  rbaseImage = docker.build("${registry}:rbase-${makeDockerImageVersion()}", "--build-arg git_creds=$GIT_CREDS ./rbase")
               }
             }
           }
@@ -86,7 +82,7 @@ pipeline{
         script{
           ansiColor('xterm') {
             sh "sed -r 's!%%CONTAINER_VERSION%%!${makeDockerImageVersion()}!g;' test/Dockerfile.template > test/Dockerfile"
-            testImage = docker.build("${registry}:test-${makeDockerImageVersion()}", "--build-arg git_username=$GIT_USERNAME --build-arg git_password=$GIT_PASSWORD ./test")
+            testImage = docker.build("${registry}:test-${makeDockerImageVersion()}", "--build-arg git_creds=$GIT_CREDS ./test")
           }
         }
       }
@@ -109,7 +105,6 @@ pipeline{
 //         }
 //       }
 //     }
-  }
 
 //   post{
 //     always{
