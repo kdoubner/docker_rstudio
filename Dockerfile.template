@@ -44,7 +44,7 @@ COPY sss_client.pam /etc/pam.d/sss_client
 COPY entrypoint.sh /entrypoint.sh
 
 # Install software allowing integration with base OS
-RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
+RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev libpng-tools" \
     && apt-get update && apt-get install -y --no-install-recommends \
         libnss-sss \
         libpam-sss \
