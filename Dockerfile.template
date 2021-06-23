@@ -44,9 +44,7 @@ COPY sss_client.pam /etc/pam.d/sss_client
 COPY entrypoint.sh /entrypoint.sh
 
 # Install software allowing integration with base OS
-RUN cd /tmp \
-    && R CMD INSTALL HazelcastClient_0.0.1.tar.gz \
-    && BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
+RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
     && apt-get update && apt-get install -y --no-install-recommends \
         libnss-sss \
         libpam-sss \
@@ -70,6 +68,8 @@ RUN cd /tmp \
     # Final permissions and folders
     && mkdir -p /home/ta_analytics \
     && chown 10000:10000 /home/ta_analytics \
+    && cd /tmp \
+    && R CMD INSTALL HazelcastClient_0.0.1.tar.gz \
     # Clean caches
     && apt-get purge -y $BUILDDEPS \
     && apt-get install -y libpq5 libxml2\
