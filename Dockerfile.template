@@ -1,3 +1,5 @@
+#----------- Stage 1 - Hazelcast client compilation --------------
+
 FROM rocker/r-ver:3.6.2 AS builder
 ARG git_creds
 RUN echo deb http://deb.debian.org/debian buster-backports main >> /etc/apt/sources.list \
@@ -31,6 +33,9 @@ RUN echo deb http://deb.debian.org/debian buster-backports main >> /etc/apt/sour
         && apt install -y libboost-tools-dev \
         && DEPS=`grep -rohI "boost.*hpp" /home/hz | sort -u` \
         && bcp --boost=/usr/local/include/ $DEPS .
+
+
+#----------- Stage 2 - R image build --------------
 
 FROM rocker/%%CONTAINER_TYPE%%:3.6.2
 MAINTAINER "Milos Kozak" mkozak@finmason.com

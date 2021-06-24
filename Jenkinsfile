@@ -88,22 +88,22 @@ pipeline{
     }
 
 
-//     stage("Publish to ECR"){
-//       // Skip docker image publish when pull request
-//       when{
-//         not { branch 'PR-*' }
-//       }
-//       steps{
-//         script{
-//           docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
-//             // dvImage.push()
-//             rstudioImage.push()
-//             rbaseImage.push()
-//             testImage.push()
-//           }
-//         }
-//       }
-//     }
+    stage("Publish to ECR"){
+      // Skip docker image publish when pull request
+      when{
+        not { branch 'PR-*' }
+      }
+      steps{
+        script{
+          docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
+            // dvImage.push()
+            rstudioImage.push()
+            rbaseImage.push()
+            testImage.push()
+          }
+        }
+      }
+    }
   }
 //   post{
 //     always{
