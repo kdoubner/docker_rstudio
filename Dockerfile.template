@@ -1,14 +1,50 @@
+FROM rocker/r-ver:3.6.2 AS builder
+ARG git_creds
+RUN echo deb http://deb.debian.org/debian buster-backports main >> /etc/apt/sources.list \
+        && apt update \
+        && apt install zlib1g-dev bzip2 cmake/buster-backports g++ wget git -y \
+        && wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.bz2 -q\
+        && tar xf /boost_1_75_0.tar.bz2\
+        && cd boost_1_75_0 \
+        && ./bootstrap.sh \
+        && ./b2 cxxflags=-fPIC -a --with-thread --with-chrono install \
+        && cd .. && rm -rf boost_1_75_0 boost_1_75_0.tar.bz2 \
+        && wget https://github.com/hazelcast/hazelcast-cpp-client/archive/v4.0.1.tar.gz -q \
+        && tar xf /v4.0.1.tar.gz\
+        && cd hazelcast-cpp-client-4.0.1\
+        && mkdir build\
+        && cd build\
+        && cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/home/hz\
+        && cmake --build . --config Release\
+        && cmake --build . --target install --config Release \
+        && cd /root \
+        && git clone https://${git_creds}@github.com/finmason2108/hazelcast-client-c.git \
+        && cd /root/hazelcast-client-c \
+        && cp /usr/local/lib/libboost_thread.a hz-libs/lib/\
+        && cp /usr/local/lib/libboost_chrono.a hz-libs/lib/\
+        && cp /home/hz/lib/libhazelcast-cpp-client.a hz-libs/lib/\
+        && echo 'install.packages("https://cran.r-project.org/src/contrib/Archive/versions/versions_0.2.tar.gz", repos=NULL, type="source")' > /tmp/install.R \
+        && echo "library('versions')" >> /tmp/install.R \
+        && echo "install.versions('Rcpp','1.0.1')" >> /tmp/install.R \
+        && Rscript /tmp/install.R \
+        && R CMD build . \
+        && apt install -y libboost-tools-dev \
+        && DEPS=`grep -rohI "boost.*hpp" /home/hz | sort -u` \
+        && bcp --boost=/usr/local/include/ $DEPS .
+
 FROM rocker/%%CONTAINER_TYPE%%:3.6.2
 MAINTAINER "Milos Kozak" mkozak@finmason.com
 
 # Place static files
+COPY --from=builder /root/hazelcast-client-c/HazelcastClient_0.0.1.tar.gz /tmp/
+COPY --from=builder /root/hazelcast-client-c/boost /usr/local/include/boost
 COPY *.R /tmp/
 COPY Packages_*.py* /tmp/
 COPY sss_client.pam /etc/pam.d/sss_client
 COPY entrypoint.sh /entrypoint.sh
 
 # Install software allowing integration with base OS
-RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
+RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev libpng-tools" \
     && apt-get update && apt-get install -y --no-install-recommends \
         libnss-sss \
         libpam-sss \
@@ -32,15 +68,18 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
     # Final permissions and folders
     && mkdir -p /home/ta_analytics \
     && chown 10000:10000 /home/ta_analytics \
+    && cd /tmp \
+    && R CMD INSTALL HazelcastClient_0.0.1.tar.gz \
     # Clean caches
     && apt-get purge -y $BUILDDEPS \
-    && apt-get install -y libpq5 libxml2\
+    && apt-get install -y libpq5 libxml2 libpng-dev libpng-tools\
     && apt-get autoremove -y \
     && apt-get autoclean -y \
     && rm -rf /var/lib/apt/lists/* \
     # Test all R packages are installed \
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackage(df, /g' | R \
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackageExit(df, /g' | R
+
 
 # OPS-1324
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
