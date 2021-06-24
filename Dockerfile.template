@@ -61,6 +61,7 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
         libcurl4-openssl-dev \
         netcat \
         xsltproc \
+        libpcre2-dev libpcre2-8-0 #added for R v4.1.0 \
         ${BUILDDEPS} \
     # Install R packages
     && R CMD javareconf \
