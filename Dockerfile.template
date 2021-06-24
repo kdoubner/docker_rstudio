@@ -1,6 +1,6 @@
 #----------- Stage 1 - Hazelcast client compilation --------------
 
-FROM rocker/r-ver:3.6.2 AS builder
+FROM rocker/r-ver:4.1.0 AS builder
 ARG git_creds
 RUN echo deb http://deb.debian.org/debian buster-backports main >> /etc/apt/sources.list \
         && apt update \
@@ -37,7 +37,7 @@ RUN echo deb http://deb.debian.org/debian buster-backports main >> /etc/apt/sour
 
 #----------- Stage 2 - R image build --------------
 
-FROM rocker/%%CONTAINER_TYPE%%:3.6.2
+FROM rocker/%%CONTAINER_TYPE%%:4.1.0
 MAINTAINER "Milos Kozak" mkozak@finmason.com
 
 # Place static files
